@@ -10,6 +10,7 @@
     <body>
         <div id="app">
             <p>{{ message }}</p>
+
             <div v-if="!islogin">
                 <p>
                     <label for="email">Email</label>
@@ -23,12 +24,27 @@
                     <button v-on:click="login">Login</button>
                 </p>
             </div>
-            <p v-if="islogin">
+            <div v-if="islogin">
                 <button v-on:click="logout">Logout</button>
-            </p>
+
+                <div>
+                    <ul>
+                        <bookmarks-item v-for="bookmark in bookmarksList" v-bind:bookmark="bookmark"></bookmarks-item>
+                    </ul>
+                </div>
+
+                <p>
+                    <label for="bookmark">Bookmark</label>
+                    <input type="text" v-model="bookmark" placeholder="http://www.google.fr" />
+                </p>
+                <p>
+                    <button v-on:click="addBookmark">Add bookmark</button>
+                </p>
+            </div>
         </div>
         <script src="https://www.gstatic.com/firebasejs/3.6.1/firebase.js"></script>
         <script src="https://unpkg.com/vue/dist/vue.js"></script>
+        <script src="components/bookmarksItem.js"></script>
         <script src="app.js"></script>
     </body>
 </html>

@@ -9,6 +9,7 @@ var config = {
 
 firebase.initializeApp(config);
 
+var database = firebase.database();
 var regexpEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
 var app = new Vue({
@@ -19,7 +20,9 @@ var app = new Vue({
         account: {
             email: '',
             password: ''
-        }
+        },
+        bookmarksList: {},
+        bookmark: ''
     },
     // computed property for form validation state
     computed: {
@@ -61,6 +64,21 @@ var app = new Vue({
         },
         logout: function() {
             firebase.auth().signOut();
+        },
+        addBookmark: function() {
+            user = firebase.auth().currentUser;
+            var bookmarkData = {
+                uid: user.uid,
+                bookmark: this.bookmark
+            };
+
+            var newBookmarkId = firebase.database().ref().child('bookmarks').push().key;
+            var updates = {};
+                updates['/bookmarks/' + newBookmarkId] = bookmarkData;
+
+            this.bookmark = '';
+
+            return firebase.database().ref().update(updates);
         }
     }
 });
@@ -69,6 +87,10 @@ firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
         app.islogin = true;
         app.message = 'You are logged in : '+ user.email;
+
+        firebase.database().ref('/bookmarks/'+user.uid).once('value').then(function(b) {
+            console.log(b.val());
+        });
     }
     else {
         app.islogin = false;
