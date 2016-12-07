@@ -48,7 +48,7 @@ var app = new Vue({
                     .then(function(user) {
                         $this.message = 'You are logged in : '+ user.email;
                         $this.account.password = '';
-                        $this.account.email = ''
+                        $this.account.email = '';
                     })
                     .catch(function(error) {
                         // Handle Errors here.
@@ -76,8 +76,6 @@ var app = new Vue({
             var updates = {};
                 updates['/bookmarks/' + newBookmarkId] = bookmarkData;
 
-            this.bookmark = '';
-
             return firebase.database().ref().update(updates);
         }
     }
@@ -88,12 +86,18 @@ firebase.auth().onAuthStateChanged(function(user) {
         app.islogin = true;
         app.message = 'You are logged in : '+ user.email;
 
-        firebase.database().ref('/bookmarks/'+user.uid).once('value').then(function(b) {
+        /*firebase.database().ref('/bookmarks/').on('value').then(function(b) {
             console.log(b.val());
+        });*/
+
+        var bookmarksRef = firebase.database().ref('/bookmarks/');
+        bookmarksRef.orderByChild('uid').equalTo(user.uid).on('value', function(b) {
+            app.bookmarksList = b.val();
         });
     }
     else {
         app.islogin = false;
         app.message = 'You are not logged in !!!';
+        app.bookmarksList = {};
     }
 });
